@@ -1,0 +1,16 @@
+{
+  "title": "Ross' Website",
+  "author": "Ross Kippenbrock",
+  "headerTitle": "Ross Kippenbrock",
+  "description": "My personal website",
+  "language": "en-us",
+  "siteUrl": "https://rossk.engineer",
+  "siteRepo": "https://github.com/rkipp1210/website",
+  "image": "/static/images/me_bike_breck.png",
+  "socialBanner": "/static/images/twitter-card.png",
+  "email": "rkippenbrock@gmail.com",
+  "github": "https://github.com/rkipp1210",
+  "linkedin": "https://www.linkedin.com/rosskippenbrock",
+  "twitter": "https://www.twitter.com/rosskipp",
+  "locale": "en-US"
+}
