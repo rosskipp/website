@@ -1,0 +1,137 @@
+---
+title: Controlling a Donkey Car with ROS and an Xbox Controller
+date: '2021-03-01'
+tags: ['rasberry pi', 'python', 'autonomous', 'car']
+draft: false
+summary: 'Learning the Robot Operating System by setting up a Donkey Car running a Raspberry Pi to run off commands sent from an Xbox controller.'
+---
+
+You could also call this blog post: how to make a simple RC car a complicated one.
+
+### Why do it?
+
+I’ve had a [Donkey Car](https://www.donkeycar.com/) for about a year but unfortunately other things have stolen my attention and I haven’t touched it much after getting it put together and running through some quick tutorials.
+Donkey Car is a group that produced a design and software for an opensource DIY self driving platform for small scale cars.
+The community holds events where they race one another autonomously around a small track.
+It’s a great way to get started with autonomous vehicle technology.
+The idea is that you use a web interface to gather training data of you driving around the track with the onboard camera then you train a neural network in Python/Keras/Tensorflow to drive like you.
+
+After doing some reading recently about the [Robot Operating System (ROS)](https://www.ros.org/), I really wanted to try to get that running on my Donkey Car.
+Luckily there are some great resources out there to help out.
+I found [a video from Tiziano Fiorenzani](https://youtu.be/iLiI_IRedhI) that walks through the whole process of getting ROS running on the Raspberry Pi on the Donkey Car and setting up the I<sup>2</sup>C PWM motor controller board for controlling the motors.
+FYI, there are other videos in this series…I didn’t realize that until I had struggled through the fast pace he takes in this first video – so if you’re going to go through this, watch all the videos!
+However, after getting through the first few steps, I ran into a few hiccups.
+
+### Getting the thing running
+
+In this fast paced world we live in, software can go stale pretty quickly,
+and when you look at [the repo](https://gitlab.com/bradanlane/ros-i2cpwmboard) that holds the i2c_pwm code, you see this:
+
+> NOTE: This project is no longer actively maintained. If you are interested in taking over maintenace, submit a request and I will be happy to add you as a maintainer.
+
+Not always a bad thing, but at this point I feel a slight weight on my shoulders that this isn’t going to be a simple as Mr. Fiorenzani is making it look. But I continue…and BOOM, I’m hit with a compile error. Looking into it, it looks like there’s a few confounding issues. 1. The i2c linux package has been updated for Xenial and doesn’t have the same header files. 2. The i2c plugin from Gitlab assumes that this header exists. To fix this, comment out the following lines in the i2c plugin: https://gitlab.com/bradanlane/ros-i2cpwmboard/-/blob/master/src/i2cpwm_controller.cpp#L180-182 and delete the `i2c` library in this Makefile https://gitlab.com/bradanlane/ros-i2cpwmboard/-/blob/master/CMakeLists.txt#L22. And that’s all there is to it! I was able to get the rest of the tutorial running and had my donkey car responding to keyboard inputs from my other ROS node in a few minutes. Pretty neat!
+
+### Calibration Code
+
+From the video, it seems that Tiziano was blessed with a set of motors/drivers that need no calibration. However, I was not as lucky. My car preferred to drive in circles if given the opportunity. I was not going to let this fly, so I added some code to the program to tune the steer commands to account for this offset. I started by getting the robot off the ground, and simply sending commands until the wheels were straight (this was my new zero). I recorded that number, and that becomes my new `center_value_steer` value in the `__init__` function:
+
+```python
+class ServoConvert():
+    """
+    Class for handling the servos for the i2c control i2cpwm_board
+    """
+    def __init__(self, id=1, center_value_throttle=333, center_value_steer=300, range=90, direction=1):
+        self.value = 0.0
+        self.id = id
+        self._center_throttle = center_value_throttle
+        self._center_steer = center_value_steer
+        self._range = range
+        self._half_range = 0.5 * range
+        self._dir = direction
+
+        self._sf = 1.0 / self._half_range
+
+    def get_value_out(self, value_in, type):
+        self.value = value_in
+        if type == "steer":
+            self.value_out  = int(self._dir*value_in*self._half_range + self._center_steer)
+        else:
+            self.value_out  = int(self._dir*value_in*self._half_range + self._center_throttle)
+        return(self.value_out)
+```
+
+Then lower in the program, when your updating the servo commands, you just pass in the “steer” or “throttle” type to the `get_value_out()` function. Like so:
+
+```python
+self.actuators['throttle'].get_value_out(message.linear.x, 'throttle')
+self.actuators['steering'].get_value_out(message.angular.z, 'steer')
+```
+
+### Joystick Control
+
+So far this is pretty sweet…but I don’t like digital inputs for throttle and steering (either all of it or none of it).
+So I ordered a cheap [Xbox controller knock off](amazon.com/gp/product/B07H6X14MD/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) after seeing that ROS supports controller inputs with [a package](http://wiki.ros.org/joy) called `joy`.
+Following the documentation and tutorials for this is pretty straightforward to get the controller working.
+The joystick in connected to ROS via a node called `Joystick` that publishes different messages on a new topic called `joy`, so we just need to take a look at that message and integrate into the donkey car runner node that we already have.
+The `joy` message looks like this:
+
+```
+Reports the state of a joysticks axes and buttons.
+Header header           # timestamp in the header is the time the data is received from the joystick
+float32[] axes          # the axes measurements from a joystick
+int32[] buttons         # the buttons measurements from a joystic
+```
+
+The axes array holds the information we need for all the analog inputs.
+Because I want to use the left joystick to steer and the right for throttle, they’ll be in different locations – your mileage may vary,
+but the steer for me was the zeroith(?cs people…?) item and the throttle was the fourth item.
+I updated the subscribe function and the callback to look like this:
+
+New joystick subscriber:
+
+```python
+self.ros_sub_joy = rospy.Subscriber("/joy", Joy, self.set_actuators_from_joy)
+```
+
+New callback - `set_actuators_from_joy`:
+
+```python
+def set_actuators_from_joy(self, message):
+    axes = message.axes
+    steer_msg = axes[0]
+    throttle_msg = axes[4]
+
+    self.actuators['throttle'].get_value_out(throttle_msg, 'throttle')
+    self.actuators['steering'].get_value_out(steer_msg, 'steer')
+
+    rospy.loginfo("Got a command v = %2.1f  s = %2.1f"%(throttle_msg, steer_msg))
+    self.send_servo_msg()
+```
+
+### The Final Product
+
+![the car](/static/images/blog_images/donkey_car/donkey_car.png)
+
+<iframe
+  width="560"
+  height="315"
+  src="https://www.youtube.com/embed/up49tgaVrCI"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+<br />
+<iframe
+  width="560"
+  height="315"
+  src="https://www.youtube.com/embed/6siWl-eb5EQ"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+
+I ended up hooking up the controller directly to the Raspberry Pi, but there’s nothing preventing you from running the Joystick node on your laptop similar to how Tiziano got the keyboard demo working.
+
+I’m just scratching the surface with ROS and looking forward to getting deeper into it in the coming months!
+
+If you'd like to see the code for this, check out my repo here: https://github.com/rkipp1210/ros-donkeycar
