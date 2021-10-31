@@ -33,19 +33,17 @@ export default function About() {
             </div>
           </div>
           <div className="pt-8 pb-8 prose dark:prose-dark max-w-none xl:col-span-2">
+            <p>I'm currently a Principal software engineer at Civitas Learning.</p>
             <p>
-              I'm currently an Engineering Director at Alteryx working on our next generation of
-              data analytic tools.
-            </p>
-            <p>
-              Previously, I've been a software engineer before working my way into management. In a
-              past life I worked in NASCAR for Joe Gibbs Racing and Roush Fenway Racing as a race
-              engineer, simulation engineer and software engineer. I got my degree in Mechanical
-              Engineering in 2011 from Rose-Hulman Institute of Technology.
+              I spent the last 4 years at Alteryx building new machine learning and analytics tools
+              and worked my way up to being a Director. In a past life I worked in NASCAR for Joe
+              Gibbs Racing and Roush-Fenway Racing as a race engineer, simulation engineer and
+              software engineer. I got my degree in Mechanical Engineering in 2011 from Rose-Hulman
+              Institute of Technology.
             </p>
             <p>
               Outside of work I have a few too many hobbies. Currently, I'm into woodworking and
-              mechatronics. I ride my gravel and mountain bikes a fair amount as well.
+              mechatronics. I also fly fish and ride my gravel and mountain bikes a lot.
             </p>
           </div>
         </div>
