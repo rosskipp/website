@@ -33,7 +33,7 @@ export default function About() {
             </div>
           </div>
           <div className="pt-8 pb-8 prose dark:prose-dark max-w-none xl:col-span-2">
-            <p>I'm currently a Principal software engineer at Civitas Learning.</p>
+            <p>I'm currently a principal software engineer at Civitas Learning.</p>
             <p>
               I spent the last 4 years at Alteryx building new machine learning and analytics tools
               and worked my way up to being a Director. In a past life I worked in NASCAR for Joe
