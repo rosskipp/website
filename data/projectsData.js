@@ -7,9 +7,9 @@ const projectsData = [
     href: '/blog/vanlife',
   },
   {
-    title: 'Coming Soon',
-    description: `I'm working on a few projects currently, so check back soon for updates!`,
-    imgSrc: '/static/images/construction.svg',
+    title: 'Donkey Car++',
+    description: `I've added some new gadgets to my old Donkey Car. I'll start posting some updates soon.`,
+    imgSrc: '/static/images/donkey_car/donkey++.jpeg',
   },
 ]
 
