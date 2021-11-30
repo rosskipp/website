@@ -5,11 +5,11 @@
   "description": "My personal website",
   "language": "en-us",
   "siteUrl": "https://rossk.engineer",
-  "siteRepo": "https://github.com/rkipp1210/website",
+  "siteRepo": "https://github.com/rosskipp/website",
   "image": "/static/images/me_bike_breck.png",
   "socialBanner": "/static/images/twitter-card.png",
   "email": "rkippenbrock@gmail.com",
-  "github": "https://github.com/rkipp1210",
+  "github": "https://github.com/rosskipp",
   "linkedin": "https://www.linkedin.com/in/rosskippenbrock/",
   "twitter": "https://www.twitter.com/rosskipp",
   "locale": "en-US"
