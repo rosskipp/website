@@ -23,7 +23,7 @@ export default function About() {
               {siteMetadata.author}
             </h3>
             <div className="text-gray-500 dark:text-gray-400">
-              Engineer, maker of stuff, outdoor enthusiast
+              Leader, engineer, maker of stuff, outdoor enthusiast
             </div>
             <div className="text-gray-500 dark:text-gray-400"></div>
             <div className="flex pt-6 space-x-3">
@@ -33,9 +33,10 @@ export default function About() {
             </div>
           </div>
           <div className="pt-8 pb-8 prose dark:prose-dark max-w-none xl:col-span-2">
-            <p>I'm currently a principal software engineer at Civitas Learning.</p>
+            <p>Currently I'm co-founder and CTO of OnTarget - a sales-tech startup focused on helping AEs and Managers forecast more accurately.</p>
             <p>
-              I spent the last 4 years at Alteryx building new machine learning and analytics tools
+              Previously I worked as a leader and engineer at Civitas Learning working on custom solutions for customers.
+              Prior to that I spent 4 years at Alteryx building new machine learning and analytics tools
               and worked my way up to being a Director. In a past life I worked in NASCAR for Joe
               Gibbs Racing and Roush-Fenway Racing as a race engineer, simulation engineer and
               software engineer. I got my degree in Mechanical Engineering in 2011 from Rose-Hulman
